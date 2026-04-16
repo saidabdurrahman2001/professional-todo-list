@@ -1,43 +1,76 @@
 class TodoApp {
     constructor() {
-        this.todos = this.loadTodos();
-        this.currentFilter = 'all';
-        this.currentDateFilter = 'all';
-        this.currentSort = 'date-desc';
+        // Initialize users data
+        this.users = {
+            diana: {
+                todos: this.loadTodos('diana'),
+                currentFilter: 'all',
+                currentDateFilter: 'all',
+                currentSort: 'date-desc'
+            },
+            aman: {
+                todos: this.loadTodos('aman'),
+                currentFilter: 'all',
+                currentDateFilter: 'all',
+                currentSort: 'date-desc'
+            }
+        };
         this.init();
     }
 
     init() {
         this.setDefaultDate();
         this.bindEvents();
-        this.render();
-        this.updateStatistics();
+        this.renderAll();
+        this.updateAllStatistics();
     }
 
     bindEvents() {
-        // Add todo
-        document.getElementById('addBtn').addEventListener('click', () => this.addTodo());
-        document.getElementById('todoInput').addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') this.addTodo();
+        // Diana's events
+        document.getElementById('addBtnDiana').addEventListener('click', () => this.addTodo('diana'));
+        document.getElementById('todoInputDiana').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') this.addTodo('diana');
         });
 
-        // Filter buttons
-        document.querySelectorAll('.filter-btn').forEach(btn => {
-            btn.addEventListener('click', (e) => this.setFilter(e.target.dataset.filter));
+        // Aman's events
+        document.getElementById('addBtnAman').addEventListener('click', () => this.addTodo('aman'));
+        document.getElementById('todoInputAman').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') this.addTodo('aman');
         });
 
-        // Date filter buttons
-        document.querySelectorAll('.date-filter-btn').forEach(btn => {
-            btn.addEventListener('click', (e) => this.setDateFilter(e.target.dataset.dateFilter));
+        // Diana's filter buttons
+        document.querySelectorAll('.filter-btn-diana').forEach(btn => {
+            btn.addEventListener('click', (e) => this.setFilter('diana', e.target.dataset.filter));
         });
 
-        // Sort buttons
-        document.querySelectorAll('.sort-btn').forEach(btn => {
-            btn.addEventListener('click', (e) => this.setSort(e.target.dataset.sort));
+        // Diana's date filter buttons
+        document.querySelectorAll('.date-filter-btn-diana').forEach(btn => {
+            btn.addEventListener('click', (e) => this.setDateFilter('diana', e.target.dataset.dateFilter));
         });
 
-        // Clear completed
-        document.getElementById('clearCompletedBtn').addEventListener('click', () => this.clearCompleted());
+        // Diana's sort buttons
+        document.querySelectorAll('.sort-btn-diana').forEach(btn => {
+            btn.addEventListener('click', (e) => this.setSort('diana', e.target.dataset.sort));
+        });
+
+        // Aman's filter buttons
+        document.querySelectorAll('.filter-btn-aman').forEach(btn => {
+            btn.addEventListener('click', (e) => this.setFilter('aman', e.target.dataset.filter));
+        });
+
+        // Aman's date filter buttons
+        document.querySelectorAll('.date-filter-btn-aman').forEach(btn => {
+            btn.addEventListener('click', (e) => this.setDateFilter('aman', e.target.dataset.dateFilter));
+        });
+
+        // Aman's sort buttons
+        document.querySelectorAll('.sort-btn-aman').forEach(btn => {
+            btn.addEventListener('click', (e) => this.setSort('aman', e.target.dataset.sort));
+        });
+
+        // Clear completed buttons
+        document.getElementById('clearCompletedBtnDiana').addEventListener('click', () => this.clearCompleted('diana'));
+        document.getElementById('clearCompletedBtnAman').addEventListener('click', () => this.clearCompleted('aman'));
 
         // Export/Import
         document.getElementById('exportBtn').addEventListener('click', () => this.exportData());
@@ -45,14 +78,13 @@ class TodoApp {
         document.getElementById('importFile').addEventListener('change', (e) => this.handleFileImport(e));
     }
 
-    addTodo() {
-        const input = document.getElementById('todoInput');
-        const dateInput = document.getElementById('todoDate');
+    addTodo(user) {
+        const input = document.getElementById(`todoInput${user.charAt(0).toUpperCase() + user.slice(1)}`);
+        const dateInput = document.getElementById(`todoDate${user.charAt(0).toUpperCase() + user.slice(1)}`);
         const text = input.value.trim();
-        const date = dateInput.value;
         
         if (!text) {
-            this.showError('Silakan masukkan tugas terlebih dahulu');
+            this.showError(`Silakan masukkan tugas ${user} terlebih dahulu`);
             return;
         }
 
@@ -61,99 +93,111 @@ class TodoApp {
             text: text,
             completed: false,
             createdAt: new Date().toISOString(),
-            dueDate: date || null
+            dueDate: dateInput.value || null
         };
 
-        this.todos.unshift(todo);
-        this.saveTodos();
-        this.render();
-        this.updateStatistics();
+        this.users[user].todos.unshift(todo);
+        this.saveTodos(user);
+        this.render(user);
+        this.updateStatistics(user);
         
         input.value = '';
-        dateInput.value = '';
-        this.setDefaultDate();
         input.focus();
         
-        this.showSuccess('Tugas berhasil ditambahkan');
+        this.showSuccess(`Tugas ${user} berhasil ditambahkan`);
     }
 
-    toggleTodo(id) {
-        const todo = this.todos.find(t => t.id === id);
+    toggleTodo(id, user) {
+        const todo = this.users[user].todos.find(t => t.id === id);
         if (todo) {
             todo.completed = !todo.completed;
-            this.saveTodos();
-            this.render();
-            this.updateStatistics();
+            this.saveTodos(user);
+            this.render(user);
+            this.updateStatistics(user);
         }
     }
 
-    deleteTodo(id) {
-        this.todos = this.todos.filter(t => t.id !== id);
-        this.saveTodos();
-        this.render();
-        this.updateStatistics();
-        this.showSuccess('Tugas berhasil dihapus');
+    deleteTodo(id, user) {
+        this.users[user].todos = this.users[user].todos.filter(t => t.id !== id);
+        this.saveTodos(user);
+        this.render(user);
+        this.updateStatistics(user);
+        this.showSuccess(`Tugas ${user} berhasil dihapus`);
     }
 
-    editTodo(id) {
-        const todo = this.todos.find(t => t.id === id);
-        if (!todo) return;
-
-        const newText = prompt('Edit tugas:', todo.text);
-        if (newText && newText.trim() !== todo.text) {
-            todo.text = newText.trim();
-            this.saveTodos();
-            this.render();
-            this.showSuccess('Tugas berhasil diperbarui');
+    editTodo(id, user) {
+        const todo = this.users[user].todos.find(t => t.id === id);
+        if (todo) {
+            const newText = prompt('Edit tugas:', todo.text);
+            if (newText && newText.trim()) {
+                todo.text = newText.trim();
+                this.saveTodos(user);
+                this.render(user);
+                this.showSuccess(`Tugas ${user} berhasil diedit`);
+            }
         }
     }
 
-    setFilter(filter) {
-        this.currentFilter = filter;
+    setFilter(user, filter) {
+        this.users[user].currentFilter = filter;
         
         // Update button styles
-        document.querySelectorAll('.filter-btn').forEach(btn => {
-            btn.classList.remove('active', 'bg-indigo-600', 'text-white');
-            btn.classList.add('bg-gray-100', 'text-gray-700', 'hover:bg-gray-200');
+        document.querySelectorAll(`.filter-btn-${user}`).forEach(btn => {
+            btn.classList.remove('active', 'bg-gradient-to-r', 'from-pink-500', 'to-purple-500', 'from-blue-500', 'to-indigo-500', 'text-white', 'shadow-md');
+            btn.classList.add('bg-white/80', 'text-gray-700', 'hover:bg-white/90', 'shadow-sm');
         });
         
-        const activeBtn = document.querySelector(`[data-filter="${filter}"]`);
-        activeBtn.classList.remove('bg-gray-100', 'text-gray-700', 'hover:bg-gray-200');
-        activeBtn.classList.add('active', 'bg-indigo-600', 'text-white');
+        const activeBtn = document.querySelector(`[data-filter="${filter}"][data-user="${user}"]`);
+        if (activeBtn) {
+            activeBtn.classList.remove('bg-white/80', 'text-gray-700', 'hover:bg-white/90', 'shadow-sm');
+            if (user === 'diana') {
+                activeBtn.classList.add('bg-gradient-to-r', 'from-pink-500', 'to-purple-500', 'text-white', 'shadow-md');
+            } else {
+                activeBtn.classList.add('bg-gradient-to-r', 'from-blue-500', 'to-indigo-500', 'text-white', 'shadow-md');
+            }
+        }
         
-        this.render();
+        this.render(user);
     }
 
-    setDateFilter(dateFilter) {
-        this.currentDateFilter = dateFilter;
+    setDateFilter(user, dateFilter) {
+        this.users[user].currentDateFilter = dateFilter;
         
         // Update button styles
-        document.querySelectorAll('.date-filter-btn').forEach(btn => {
-            btn.classList.remove('active', 'bg-indigo-600', 'text-white');
-            btn.classList.add('bg-gray-100', 'text-gray-700', 'hover:bg-gray-200');
+        document.querySelectorAll(`.date-filter-btn-${user}`).forEach(btn => {
+            btn.classList.remove('active', 'bg-pink-100', 'text-pink-700', 'bg-blue-100', 'text-blue-700');
+            btn.classList.add('bg-white/80', 'text-gray-700', 'hover:bg-white/90');
         });
         
-        const activeBtn = document.querySelector(`[data-date-filter="${dateFilter}"]`);
-        activeBtn.classList.remove('bg-gray-100', 'text-gray-700', 'hover:bg-gray-200');
-        activeBtn.classList.add('active', 'bg-indigo-600', 'text-white');
+        const activeBtn = document.querySelector(`[data-date-filter="${dateFilter}"][data-user="${user}"]`);
+        if (activeBtn) {
+            activeBtn.classList.remove('bg-white/80', 'text-gray-700', 'hover:bg-white/90');
+            if (user === 'diana') {
+                activeBtn.classList.add('bg-pink-100', 'text-pink-700');
+            } else {
+                activeBtn.classList.add('bg-blue-100', 'text-blue-700');
+            }
+        }
         
-        this.render();
+        this.render(user);
     }
 
-    setSort(sort) {
-        this.currentSort = sort;
+    setSort(user, sort) {
+        this.users[user].currentSort = sort;
         
         // Update button styles
-        document.querySelectorAll('.sort-btn').forEach(btn => {
+        document.querySelectorAll(`.sort-btn-${user}`).forEach(btn => {
             btn.classList.remove('bg-indigo-600', 'text-white');
-            btn.classList.add('bg-gray-100', 'text-gray-700', 'hover:bg-gray-200');
+            btn.classList.add('bg-white/80', 'text-gray-700', 'hover:bg-white/90');
         });
         
-        const activeBtn = document.querySelector(`[data-sort="${sort}"]`);
-        activeBtn.classList.remove('bg-gray-100', 'text-gray-700', 'hover:bg-gray-200');
-        activeBtn.classList.add('bg-indigo-600', 'text-white');
+        const activeBtn = document.querySelector(`[data-sort="${sort}"][data-user="${user}"]`);
+        if (activeBtn) {
+            activeBtn.classList.remove('bg-white/80', 'text-gray-700', 'hover:bg-white/90');
+            activeBtn.classList.add('bg-indigo-600', 'text-white');
+        }
         
-        this.render();
+        this.render(user);
     }
 
     getFilteredTodos() {
@@ -328,37 +372,43 @@ class TodoApp {
             
             dueDateHTML = `
                 <p class="text-xs ${dateClass} mt-1">
-                    <i class="fas ${dateIcon} mr-1"></i>Deadline: ${formattedDueDate}
+                    <i class="fas ${dateIcon} mr-1"></i>
+                    <span class="hidden sm:inline">Deadline:</span>
+                    <span class="sm:hidden">DL:</span>
+                    ${formattedDueDate}
                 </p>
             `;
         }
         
         return `
-            <div class="todo-item animate-slide-down bg-gray-50 rounded-lg p-4 flex items-center gap-3 hover:bg-gray-100 transition-colors duration-200 group ${todo.completed ? 'opacity-75' : ''}">
+            <div class="todo-item animate-slide-down bg-gray-50 rounded-lg p-3 sm:p-4 flex items-start sm:items-center gap-2 sm:gap-3 hover:bg-gray-100 transition-colors duration-200 group ${todo.completed ? 'opacity-75' : ''}">
                 <input 
                     type="checkbox" 
-                    class="todo-checkbox w-5 h-5 text-indigo-600 rounded focus:ring-indigo-500 cursor-pointer" 
+                    class="todo-checkbox w-4 h-4 sm:w-5 sm:h-5 text-indigo-600 rounded focus:ring-indigo-500 cursor-pointer mt-0.5 sm:mt-0" 
                     data-id="${todo.id}"
                     ${todo.completed ? 'checked' : ''}
                 >
-                <div class="flex-1">
-                    <p class="${todo.completed ? 'line-through text-gray-500' : 'text-gray-800'} font-medium">
+                <div class="flex-1 min-w-0">
+                    <p class="${todo.completed ? 'line-through text-gray-500' : 'text-gray-800'} font-medium text-sm sm:text-base break-words">
                         ${this.escapeHtml(todo.text)}
                     </p>
                     <p class="text-xs text-gray-500 mt-1">
-                        <i class="far fa-clock mr-1"></i>Dibuat: ${formattedCreatedDate}
+                        <i class="far fa-clock mr-1"></i>
+                        <span class="hidden sm:inline">Dibuat:</span>
+                        <span class="sm:hidden">+</span>
+                        ${formattedCreatedDate}
                     </p>
                     ${dueDateHTML}
                 </div>
-                <div class="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+                <div class="flex gap-1 sm:gap-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex-shrink-0">
                     <button 
-                        class="edit-btn px-3 py-1 bg-blue-100 text-blue-600 rounded hover:bg-blue-200 transition-colors duration-200 text-sm"
+                        class="edit-btn px-2 py-1 sm:px-3 sm:py-1 bg-blue-100 text-blue-600 rounded hover:bg-blue-200 transition-colors duration-200 text-xs sm:text-sm"
                         data-id="${todo.id}"
                     >
                         <i class="fas fa-edit"></i>
                     </button>
                     <button 
-                        class="delete-btn px-3 py-1 bg-red-100 text-red-600 rounded hover:bg-red-200 transition-colors duration-200 text-sm"
+                        class="delete-btn px-2 py-1 sm:px-3 sm:py-1 bg-red-100 text-red-600 rounded hover:bg-red-200 transition-colors duration-200 text-xs sm:text-sm"
                         data-id="${todo.id}"
                     >
                         <i class="fas fa-trash"></i>

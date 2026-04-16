@@ -36,173 +36,296 @@
         }
     </script>
 </head>
-<body class="bg-gradient-to-br from-blue-50 to-indigo-100 min-h-screen">
-    <div class="container mx-auto px-4 py-8 max-w-4xl">
+<body class="min-h-screen relative overflow-x-hidden">
+    <!-- Background Layer -->
+    <div class="fixed inset-0 -z-10">
+        <!-- Image Background dengan Tile Pattern -->
+        <div class="absolute inset-0" style="
+            background-image: url('assets/images/background.jpg');
+            background-repeat: repeat;
+            background-position: top left;
+            background-size: 150px;
+        "></div>
+        
+        <!-- Gradient Overlay untuk readability -->
+        <div class="absolute inset-0 bg-gradient-to-br from-blue-50/40 to-indigo-100/40"></div>
+        
+        <!-- Additional subtle pattern overlay -->
+        <div class="absolute inset-0 opacity-30" style="
+            background-image: url('data:image/svg+xml,%3Csvg width="40" height="40" viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg"%3E%3Cg fill="%239C92AC" fill-opacity="0.1"%3E%3Cpath d="M0 40L40 0H20L0 20M40 40V20L20 40"/%3E%3C/g%3E%3C/svg%3E');
+        "></div>
+    </div>
+    <div class="container mx-auto px-4 py-8 max-w-7xl">
         <!-- Header -->
-        <header class="text-center mb-10 animate-fade-in">
-            <h1 class="text-4xl font-bold text-gray-800 mb-2">
-                <i class="fas fa-tasks text-indigo-600 mr-3"></i>
-                Professional To-Do List
+        <header class="text-center mb-6 sm:mb-10 animate-fade-in relative z-10">
+            <h1 class="text-2xl sm:text-4xl font-bold text-white mb-2 drop-shadow-lg">
+                <i class="fas fa-tasks text-yellow-400 mr-2 sm:mr-3 drop-shadow-md"></i>
+                Family To-Do List
             </h1>
-            <p class="text-gray-600">Kelola tugas harian Anda dengan efisien</p>
+            <p class="text-sm sm:text-base text-white/90 drop-shadow-md">Kelola tugas bersama Diana dan Aman</p>
         </header>
 
-        <!-- Main Content -->
-        <main class="bg-white rounded-2xl shadow-xl p-8">
-            <!-- Input Section -->
-            <section class="mb-8">
-                <div class="flex gap-3 mb-6">
-                    <div class="flex-1 relative">
-                        <input 
-                            type="text" 
-                            id="todoInput" 
-                            placeholder="Tambahkan tugas baru..." 
-                            class="w-full px-4 py-3 pr-12 border-2 border-gray-200 rounded-lg focus:border-indigo-500 focus:outline-none transition-colors text-gray-700"
+        <!-- Main Content - 2 Sections -->
+        <main class="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8">
+            <!-- Diana's Section -->
+            <section class="bg-gradient-to-br from-pink-50/90 to-purple-50/90 backdrop-blur-sm rounded-2xl shadow-xl p-4 md:p-6 relative z-10 border border-pink-200">
+                <div class="text-center mb-6">
+                    <h2 class="text-2xl font-bold text-pink-600 mb-2">
+                        <i class="fas fa-user-circle text-pink-500 mr-2"></i>
+                        Diana's Tasks
+                    </h2>
+                    <div class="w-16 h-1 bg-gradient-to-r from-pink-400 to-purple-400 mx-auto rounded-full"></div>
+                </div>
+
+                <!-- Diana's Input Section -->
+                <div class="mb-6">
+                    <div class="flex flex-col sm:flex-row gap-2 sm:gap-3 mb-4">
+                        <div class="flex-1 relative">
+                            <input 
+                                type="text" 
+                                id="todoInputDiana" 
+                                placeholder="Tambahkan tugas Diana..." 
+                                class="w-full px-3 py-3 pr-10 sm:px-4 sm:py-3 sm:pr-12 border-2 border-pink-200 rounded-lg focus:border-pink-500 focus:outline-none transition-colors text-gray-700 text-sm sm:text-base bg-white/70"
+                            >
+                            <i class="fas fa-pencil-alt absolute right-3 top-1/2 transform -translate-y-1/2 text-pink-400 text-xs sm:text-sm"></i>
+                        </div>
+                        <div class="relative">
+                            <input 
+                                type="date" 
+                                id="todoDateDiana" 
+                                class="px-3 py-3 sm:px-4 sm:py-3 border-2 border-pink-200 rounded-lg focus:border-pink-500 focus:outline-none transition-colors text-gray-700 text-sm sm:text-base min-w-[140px] bg-white/70"
+                            >
+                            <i class="fas fa-calendar absolute right-2 sm:right-3 top-1/2 transform -translate-y-1/2 text-pink-400 pointer-events-none text-xs sm:text-sm"></i>
+                        </div>
+                        <button 
+                            id="addBtnDiana" 
+                            class="px-4 py-3 sm:px-6 sm:py-3 bg-gradient-to-r from-pink-500 to-purple-500 text-white rounded-lg hover:from-pink-600 hover:to-purple-600 transition-all duration-200 font-medium shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 text-sm sm:text-base whitespace-nowrap"
                         >
-                        <i class="fas fa-pencil-alt absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+                            <i class="fas fa-plus sm:mr-2"></i>
+                            <span class="hidden sm:inline">Tambah</span>
+                            <span class="sm:hidden">+</span>
+                        </button>
                     </div>
-                    <div class="relative">
-                        <input 
-                            type="date" 
-                            id="todoDate" 
-                            class="px-4 py-3 border-2 border-gray-200 rounded-lg focus:border-indigo-500 focus:outline-none transition-colors text-gray-700"
-                        >
-                        <i class="fas fa-calendar absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 pointer-events-none"></i>
+
+                    <!-- Diana's Filter Buttons -->
+                    <div class="flex flex-wrap gap-1 sm:gap-2 justify-center mb-3">
+                        <button class="filter-btn-diana active px-3 py-1.5 sm:px-4 sm:py-2 rounded-full text-xs sm:text-sm font-medium transition-all duration-200 bg-gradient-to-r from-pink-500 to-purple-500 text-white shadow-md" data-filter="all" data-user="diana">
+                            <i class="fas fa-list mr-1 sm:mr-2"></i>Semua
+                        </button>
+                        <button class="filter-btn-diana px-3 py-1.5 sm:px-4 sm:py-2 rounded-full text-xs sm:text-sm font-medium transition-all duration-200 bg-white/80 text-gray-700 hover:bg-white/90 shadow-sm" data-filter="active" data-user="diana">
+                            <i class="fas fa-clock mr-1 sm:mr-2"></i>Aktif
+                        </button>
+                        <button class="filter-btn-diana px-3 py-1.5 sm:px-4 sm:py-2 rounded-full text-xs sm:text-sm font-medium transition-all duration-200 bg-white/80 text-gray-700 hover:bg-white/90 shadow-sm" data-filter="completed" data-user="diana">
+                            <i class="fas fa-check-circle mr-1 sm:mr-2"></i>Selesai
+                        </button>
                     </div>
+
+                    <!-- Diana's Date Filter -->
+                    <div class="flex flex-wrap gap-1 sm:gap-2 justify-center mb-3">
+                        <button class="date-filter-btn-diana active px-2 py-1 sm:px-3 sm:py-1 rounded-full text-xs font-medium transition-all duration-200 bg-pink-100 text-pink-700" data-date-filter="all" data-user="diana">
+                            Semua
+                        </button>
+                        <button class="date-filter-btn-diana px-2 py-1 sm:px-3 sm:py-1 rounded-full text-xs font-medium transition-all duration-200 bg-white/80 text-gray-700 hover:bg-white/90" data-date-filter="today" data-user="diana">
+                            Hari Ini
+                        </button>
+                        <button class="date-filter-btn-diana px-2 py-1 sm:px-3 sm:py-1 rounded-full text-xs font-medium transition-all duration-200 bg-white/80 text-gray-700 hover:bg-white/90" data-date-filter="overdue" data-user="diana">
+                            Terlambat
+                        </button>
+                        <button class="date-filter-btn-diana px-2 py-1 sm:px-3 sm:py-1 rounded-full text-xs font-medium transition-all duration-200 bg-white/80 text-gray-700 hover:bg-white/90" data-date-filter="upcoming" data-user="diana">
+                            Akan Datang
+                        </button>
+                    </div>
+
+                    <!-- Diana's Sorting Buttons -->
+                    <div class="flex flex-wrap gap-1 sm:gap-2 justify-center">
+                        <button class="sort-btn-diana px-2 py-1 sm:px-3 sm:py-1 rounded-full text-xs font-medium transition-all duration-200 bg-white/80 text-gray-700 hover:bg-white/90" data-sort="date-asc" data-user="diana">
+                            <i class="fas fa-sort-amount-down mr-1"></i>Terlama
+                        </button>
+                        <button class="sort-btn-diana px-2 py-1 sm:px-3 sm:py-1 rounded-full text-xs font-medium transition-all duration-200 bg-white/80 text-gray-700 hover:bg-white/90" data-sort="date-desc" data-user="diana">
+                            <i class="fas fa-sort-amount-up mr-1"></i>Terbaru
+                        </button>
+                        <button class="sort-btn-diana px-2 py-1 sm:px-3 sm:py-1 rounded-full text-xs font-medium transition-all duration-200 bg-white/80 text-gray-700 hover:bg-white/90" data-sort="deadline" data-user="diana">
+                            <i class="fas fa-calendar-alt mr-1"></i>Deadline
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Diana's Statistics -->
+                <div class="grid grid-cols-3 gap-2 sm:gap-4 mb-6">
+                    <div class="bg-pink-50 rounded-lg p-3 sm:p-4 text-center">
+                        <div class="text-xl sm:text-2xl font-bold text-pink-600" id="totalCountDiana">0</div>
+                        <div class="text-xs sm:text-sm text-gray-600">Total</div>
+                    </div>
+                    <div class="bg-purple-50 rounded-lg p-3 sm:p-4 text-center">
+                        <div class="text-xl sm:text-2xl font-bold text-purple-600" id="completedCountDiana">0</div>
+                        <div class="text-xs sm:text-sm text-gray-600">Selesai</div>
+                    </div>
+                    <div class="bg-orange-50 rounded-lg p-3 sm:p-4 text-center">
+                        <div class="text-xl sm:text-2xl font-bold text-orange-600" id="activeCountDiana">0</div>
+                        <div class="text-xs sm:text-sm text-gray-600">Aktif</div>
+                    </div>
+                </div>
+
+                <!-- Diana's Todo List -->
+                <div class="mb-4">
+                    <div id="todoListDiana" class="space-y-2 sm:space-y-3">
+                        <!-- Diana's todo items will be dynamically added here -->
+                    </div>
+                    
+                    <!-- Diana's Empty State -->
+                    <div id="emptyStateDiana" class="text-center py-8 sm:py-12">
+                        <i class="fas fa-clipboard-list text-4xl sm:text-6xl text-pink-300 mb-3 sm:mb-4"></i>
+                        <p class="text-pink-500 text-base sm:text-lg">Belum ada tugas Diana</p>
+                        <p class="text-pink-400 text-xs sm:text-sm mt-1 sm:mt-2">Tambahkan tugas baru untuk Diana</p>
+                    </div>
+                </div>
+
+                <!-- Diana's Clear Completed Button -->
+                <div class="text-center">
                     <button 
-                        id="addBtn" 
-                        class="px-6 py-3 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors duration-200 font-medium shadow-md hover:shadow-lg transform hover:-translate-y-0.5"
+                        id="clearCompletedBtnDiana" 
+                        class="px-4 py-2 sm:px-6 sm:py-2 bg-pink-50 text-pink-600 rounded-lg hover:bg-pink-100 transition-colors duration-200 font-medium text-xs sm:text-sm hidden"
                     >
-                        <i class="fas fa-plus mr-2"></i>
-                        Tambah
-                    </button>
-                </div>
-
-                <!-- Filter Buttons -->
-                <div class="flex gap-2 justify-center flex-wrap mb-4">
-                    <button class="filter-btn active px-4 py-2 rounded-full text-sm font-medium transition-all duration-200" data-filter="all">
-                        <i class="fas fa-list mr-2"></i>Semua
-                    </button>
-                    <button class="filter-btn px-4 py-2 rounded-full text-sm font-medium transition-all duration-200" data-filter="active">
-                        <i class="fas fa-clock mr-2"></i>Aktif
-                    </button>
-                    <button class="filter-btn px-4 py-2 rounded-full text-sm font-medium transition-all duration-200" data-filter="completed">
-                        <i class="fas fa-check-circle mr-2"></i>Selesai
-                    </button>
-                </div>
-
-                <!-- Date Filter -->
-                <div class="flex gap-2 justify-center flex-wrap mb-4">
-                    <button class="date-filter-btn active px-3 py-1 rounded-full text-xs font-medium transition-all duration-200" data-date-filter="all">
-                        Semua Tanggal
-                    </button>
-                    <button class="date-filter-btn px-3 py-1 rounded-full text-xs font-medium transition-all duration-200" data-date-filter="today">
-                        Hari Ini
-                    </button>
-                    <button class="date-filter-btn px-3 py-1 rounded-full text-xs font-medium transition-all duration-200" data-date-filter="overdue">
-                        Terlambat
-                    </button>
-                    <button class="date-filter-btn px-3 py-1 rounded-full text-xs font-medium transition-all duration-200" data-date-filter="upcoming">
-                        Akan Datang
-                    </button>
-                </div>
-
-                <!-- Sorting Buttons -->
-                <div class="flex gap-2 justify-center flex-wrap">
-                    <button class="sort-btn px-3 py-1 rounded-full text-xs font-medium transition-all duration-200 bg-gray-100 text-gray-700 hover:bg-gray-200" data-sort="date-asc">
-                        <i class="fas fa-sort-amount-down mr-1"></i>Terlama
-                    </button>
-                    <button class="sort-btn px-3 py-1 rounded-full text-xs font-medium transition-all duration-200 bg-gray-100 text-gray-700 hover:bg-gray-200" data-sort="date-desc">
-                        <i class="fas fa-sort-amount-up mr-1"></i>Terbaru
-                    </button>
-                    <button class="sort-btn px-3 py-1 rounded-full text-xs font-medium transition-all duration-200 bg-gray-100 text-gray-700 hover:bg-gray-200" data-sort="deadline">
-                        <i class="fas fa-calendar-alt mr-1"></i>Deadline
+                        <i class="fas fa-trash mr-1 sm:mr-2"></i>
+                        <span class="hidden sm:inline">Hapus yang Selesai</span>
+                        <span class="sm:hidden">Hapus Selesai</span>
                     </button>
                 </div>
             </section>
 
-            <!-- Statistics -->
-            <section class="grid grid-cols-3 gap-4 mb-8">
-                <div class="bg-blue-50 rounded-lg p-4 text-center">
-                    <div class="text-2xl font-bold text-blue-600" id="totalCount">0</div>
-                    <div class="text-sm text-gray-600">Total Tugas</div>
+            <!-- Aman's Section -->
+            <section class="bg-gradient-to-br from-blue-50/90 to-indigo-50/90 backdrop-blur-sm rounded-2xl shadow-xl p-4 md:p-6 relative z-10 border border-blue-200">
+                <div class="text-center mb-6">
+                    <h2 class="text-2xl font-bold text-blue-600 mb-2">
+                        <i class="fas fa-user-circle text-blue-500 mr-2"></i>
+                        Aman's Tasks
+                    </h2>
+                    <div class="w-16 h-1 bg-gradient-to-r from-blue-400 to-indigo-400 mx-auto rounded-full"></div>
                 </div>
-                <div class="bg-green-50 rounded-lg p-4 text-center">
-                    <div class="text-2xl font-bold text-green-600" id="completedCount">0</div>
-                    <div class="text-sm text-gray-600">Selesai</div>
-                </div>
-                <div class="bg-orange-50 rounded-lg p-4 text-center">
-                    <div class="text-2xl font-bold text-orange-600" id="activeCount">0</div>
-                    <div class="text-sm text-gray-600">Aktif</div>
-                </div>
-            </section>
 
-            <!-- Backup/Restore Section -->
-            <section class="mb-8">
-                <div class="bg-gray-50 rounded-lg p-4">
-                    <h3 class="text-lg font-semibold text-gray-800 mb-3 text-center">
-                        <i class="fas fa-database text-indigo-600 mr-2"></i>
-                        Backup & Restore Data
-                    </h3>
-                    <div class="flex gap-3 justify-center flex-wrap">
+                <!-- Aman's Input Section -->
+                <div class="mb-6">
+                    <div class="flex flex-col sm:flex-row gap-2 sm:gap-3 mb-4">
+                        <div class="flex-1 relative">
+                            <input 
+                                type="text" 
+                                id="todoInputAman" 
+                                placeholder="Tambahkan tugas Aman..." 
+                                class="w-full px-3 py-3 pr-10 sm:px-4 sm:py-3 sm:pr-12 border-2 border-blue-200 rounded-lg focus:border-blue-500 focus:outline-none transition-colors text-gray-700 text-sm sm:text-base bg-white/70"
+                            >
+                            <i class="fas fa-pencil-alt absolute right-3 top-1/2 transform -translate-y-1/2 text-blue-400 text-xs sm:text-sm"></i>
+                        </div>
+                        <div class="relative">
+                            <input 
+                                type="date" 
+                                id="todoDateAman" 
+                                class="px-3 py-3 sm:px-4 sm:py-3 border-2 border-blue-200 rounded-lg focus:border-blue-500 focus:outline-none transition-colors text-gray-700 text-sm sm:text-base min-w-[140px] bg-white/70"
+                            >
+                            <i class="fas fa-calendar absolute right-2 sm:right-3 top-1/2 transform -translate-y-1/2 text-blue-400 pointer-events-none text-xs sm:text-sm"></i>
+                        </div>
                         <button 
-                            id="exportBtn" 
-                            class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors duration-200 font-medium text-sm"
+                            id="addBtnAman" 
+                            class="px-4 py-3 sm:px-6 sm:py-3 bg-gradient-to-r from-blue-500 to-indigo-500 text-white rounded-lg hover:from-blue-600 hover:to-indigo-600 transition-all duration-200 font-medium shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 text-sm sm:text-base whitespace-nowrap"
                         >
-                            <i class="fas fa-download mr-2"></i>
-                            Export Data
+                            <i class="fas fa-plus sm:mr-2"></i>
+                            <span class="hidden sm:inline">Tambah</span>
+                            <span class="sm:hidden">+</span>
                         </button>
-                        <button 
-                            id="importBtn" 
-                            class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200 font-medium text-sm"
-                        >
-                            <i class="fas fa-upload mr-2"></i>
-                            Import Data
-                        </button>
-                        <input 
-                            type="file" 
-                            id="importFile" 
-                            accept=".json" 
-                            style="display: none;"
-                        >
                     </div>
-                    <p class="text-xs text-gray-500 text-center mt-2">
-                        Backup data Anda ke file JSON untuk keamanan
-                    </p>
-                </div>
-            </section>
 
-            <!-- Todo List -->
-            <section class="mb-6">
-                <div id="todoList" class="space-y-3">
-                    <!-- Todo items will be dynamically added here -->
-                </div>
-                
-                <!-- Empty State -->
-                <div id="emptyState" class="text-center py-12">
-                    <i class="fas fa-clipboard-list text-6xl text-gray-300 mb-4"></i>
-                    <p class="text-gray-500 text-lg">Belum ada tugas</p>
-                    <p class="text-gray-400 text-sm mt-2">Tambahkan tugas baru untuk memulai</p>
-                </div>
-            </section>
+                    <!-- Aman's Filter Buttons -->
+                    <div class="flex flex-wrap gap-1 sm:gap-2 justify-center mb-3">
+                        <button class="filter-btn-aman active px-3 py-1.5 sm:px-4 sm:py-2 rounded-full text-xs sm:text-sm font-medium transition-all duration-200 bg-gradient-to-r from-blue-500 to-indigo-500 text-white shadow-md" data-filter="all" data-user="aman">
+                            <i class="fas fa-list mr-1 sm:mr-2"></i>Semua
+                        </button>
+                        <button class="filter-btn-aman px-3 py-1.5 sm:px-4 sm:py-2 rounded-full text-xs sm:text-sm font-medium transition-all duration-200 bg-white/80 text-gray-700 hover:bg-white/90 shadow-sm" data-filter="active" data-user="aman">
+                            <i class="fas fa-clock mr-1 sm:mr-2"></i>Aktif
+                        </button>
+                        <button class="filter-btn-aman px-3 py-1.5 sm:px-4 sm:py-2 rounded-full text-xs sm:text-sm font-medium transition-all duration-200 bg-white/80 text-gray-700 hover:bg-white/90 shadow-sm" data-filter="completed" data-user="aman">
+                            <i class="fas fa-check-circle mr-1 sm:mr-2"></i>Selesai
+                        </button>
+                    </div>
 
-            <!-- Clear Completed Button -->
-            <section class="text-center">
-                <button 
-                    id="clearCompletedBtn" 
-                    class="px-6 py-2 bg-red-50 text-red-600 rounded-lg hover:bg-red-100 transition-colors duration-200 font-medium hidden"
-                >
-                    <i class="fas fa-trash mr-2"></i>
-                    Hapus yang Selesai
-                </button>
+                    <!-- Aman's Date Filter -->
+                    <div class="flex flex-wrap gap-1 sm:gap-2 justify-center mb-3">
+                        <button class="date-filter-btn-aman active px-2 py-1 sm:px-3 sm:py-1 rounded-full text-xs font-medium transition-all duration-200 bg-blue-100 text-blue-700" data-date-filter="all" data-user="aman">
+                            Semua
+                        </button>
+                        <button class="date-filter-btn-aman px-2 py-1 sm:px-3 sm:py-1 rounded-full text-xs font-medium transition-all duration-200 bg-white/80 text-gray-700 hover:bg-white/90" data-date-filter="today" data-user="aman">
+                            Hari Ini
+                        </button>
+                        <button class="date-filter-btn-aman px-2 py-1 sm:px-3 sm:py-1 rounded-full text-xs font-medium transition-all duration-200 bg-white/80 text-gray-700 hover:bg-white/90" data-date-filter="overdue" data-user="aman">
+                            Terlambat
+                        </button>
+                        <button class="date-filter-btn-aman px-2 py-1 sm:px-3 sm:py-1 rounded-full text-xs font-medium transition-all duration-200 bg-white/80 text-gray-700 hover:bg-white/90" data-date-filter="upcoming" data-user="aman">
+                            Akan Datang
+                        </button>
+                    </div>
+
+                    <!-- Aman's Sorting Buttons -->
+                    <div class="flex flex-wrap gap-1 sm:gap-2 justify-center">
+                        <button class="sort-btn-aman px-2 py-1 sm:px-3 sm:py-1 rounded-full text-xs font-medium transition-all duration-200 bg-white/80 text-gray-700 hover:bg-white/90" data-sort="date-asc" data-user="aman">
+                            <i class="fas fa-sort-amount-down mr-1"></i>Terlama
+                        </button>
+                        <button class="sort-btn-aman px-2 py-1 sm:px-3 sm:py-1 rounded-full text-xs font-medium transition-all duration-200 bg-white/80 text-gray-700 hover:bg-white/90" data-sort="date-desc" data-user="aman">
+                            <i class="fas fa-sort-amount-up mr-1"></i>Terbaru
+                        </button>
+                        <button class="sort-btn-aman px-2 py-1 sm:px-3 sm:py-1 rounded-full text-xs font-medium transition-all duration-200 bg-white/80 text-gray-700 hover:bg-white/90" data-sort="deadline" data-user="aman">
+                            <i class="fas fa-calendar-alt mr-1"></i>Deadline
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Aman's Statistics -->
+                <div class="grid grid-cols-3 gap-2 sm:gap-4 mb-6">
+                    <div class="bg-blue-50 rounded-lg p-3 sm:p-4 text-center">
+                        <div class="text-xl sm:text-2xl font-bold text-blue-600" id="totalCountAman">0</div>
+                        <div class="text-xs sm:text-sm text-gray-600">Total</div>
+                    </div>
+                    <div class="bg-indigo-50 rounded-lg p-3 sm:p-4 text-center">
+                        <div class="text-xl sm:text-2xl font-bold text-indigo-600" id="completedCountAman">0</div>
+                        <div class="text-xs sm:text-sm text-gray-600">Selesai</div>
+                    </div>
+                    <div class="bg-orange-50 rounded-lg p-3 sm:p-4 text-center">
+                        <div class="text-xl sm:text-2xl font-bold text-orange-600" id="activeCountAman">0</div>
+                        <div class="text-xs sm:text-sm text-gray-600">Aktif</div>
+                    </div>
+                </div>
+
+                <!-- Aman's Todo List -->
+                <div class="mb-4">
+                    <div id="todoListAman" class="space-y-2 sm:space-y-3">
+                        <!-- Aman's todo items will be dynamically added here -->
+                    </div>
+                    
+                    <!-- Aman's Empty State -->
+                    <div id="emptyStateAman" class="text-center py-8 sm:py-12">
+                        <i class="fas fa-clipboard-list text-4xl sm:text-6xl text-blue-300 mb-3 sm:mb-4"></i>
+                        <p class="text-blue-500 text-base sm:text-lg">Belum ada tugas Aman</p>
+                        <p class="text-blue-400 text-xs sm:text-sm mt-1 sm:mt-2">Tambahkan tugas baru untuk Aman</p>
+                    </div>
+                </div>
+
+                <!-- Aman's Clear Completed Button -->
+                <div class="text-center">
+                    <button 
+                        id="clearCompletedBtnAman" 
+                        class="px-4 py-2 sm:px-6 sm:py-2 bg-blue-50 text-blue-600 rounded-lg hover:bg-blue-100 transition-colors duration-200 font-medium text-xs sm:text-sm hidden"
+                    >
+                        <i class="fas fa-trash mr-1 sm:mr-2"></i>
+                        <span class="hidden sm:inline">Hapus yang Selesai</span>
+                        <span class="sm:hidden">Hapus Selesai</span>
+                    </button>
+                </div>
             </section>
         </main>
 
         <!-- Footer -->
-        <footer class="text-center mt-8 text-gray-600">
-            <p class="text-sm">
+        <footer class="text-center mt-6 sm:mt-8 text-gray-600">
+            <p class="text-xs sm:text-sm">
                 <i class="fas fa-heart text-red-500"></i>
-                Dibuat dengan profesionalisme untuk meningkatkan produktivitas
+                <span class="hidden sm:inline">Dibuat dengan cinta Aman terhadap Diana</span>
+                <span class="sm:hidden">Dibuat untuk produktivitas Anda</span>
             </p>
         </footer>
     </div>
