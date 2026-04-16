@@ -200,11 +200,11 @@ class TodoApp {
         this.render(user);
     }
 
-    getFilteredTodos() {
-        let filtered = this.todos;
+    getFilteredTodos(user) {
+        let filtered = this.users[user].todos;
         
         // Apply status filter
-        switch (this.currentFilter) {
+        switch (this.users[user].currentFilter) {
             case 'active':
                 filtered = filtered.filter(t => !t.completed);
                 break;
@@ -217,7 +217,7 @@ class TodoApp {
         const today = new Date();
         today.setHours(0, 0, 0, 0);
         
-        switch (this.currentDateFilter) {
+        switch (this.users[user].currentDateFilter) {
             case 'today':
                 filtered = filtered.filter(t => {
                     if (!t.dueDate) return false;
@@ -245,7 +245,7 @@ class TodoApp {
         }
         
         // Apply sorting
-        switch (this.currentSort) {
+        switch (this.users[user].currentSort) {
             case 'date-asc':
                 filtered.sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
                 break;
@@ -263,6 +263,90 @@ class TodoApp {
         }
         
         return filtered;
+    }
+
+    render(user) {
+        const todoList = document.getElementById(`todoList${user.charAt(0).toUpperCase() + user.slice(1)}`);
+        const emptyState = document.getElementById(`emptyState${user.charAt(0).toUpperCase() + user.slice(1)}`);
+        const filteredTodos = this.getFilteredTodos(user);
+        
+        if (filteredTodos.length === 0) {
+            todoList.innerHTML = '';
+            emptyState.style.display = 'block';
+        } else {
+            emptyState.style.display = 'none';
+            todoList.innerHTML = filteredTodos.map(todo => this.createTodoHTML(todo, user)).join('');
+            
+            // Add event listeners to todo items
+            todoList.querySelectorAll('.todo-checkbox').forEach(checkbox => {
+                checkbox.addEventListener('change', (e) => {
+                    this.toggleTodo(parseInt(e.target.dataset.id), user);
+                });
+            });
+            
+            todoList.querySelectorAll('.edit-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    this.editTodo(parseInt(e.target.dataset.id), user);
+                });
+            });
+            
+            todoList.querySelectorAll('.delete-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    this.deleteTodo(parseInt(e.target.dataset.id), user);
+                });
+            });
+        }
+        
+        // Show/hide clear completed button
+        const clearBtn = document.getElementById(`clearCompletedBtn${user.charAt(0).toUpperCase() + user.slice(1)}`);
+        const hasCompleted = this.users[user].todos.some(t => t.completed);
+        clearBtn.style.display = hasCompleted ? 'inline-block' : 'none';
+    }
+
+    renderAll() {
+        this.render('diana');
+        this.render('aman');
+    }
+
+    updateStatistics(user) {
+        const totalCount = document.getElementById(`totalCount${user.charAt(0).toUpperCase() + user.slice(1)}`);
+        const completedCount = document.getElementById(`completedCount${user.charAt(0).toUpperCase() + user.slice(1)}`);
+        const activeCount = document.getElementById(`activeCount${user.charAt(0).toUpperCase() + user.slice(1)}`);
+        
+        const todos = this.users[user].todos;
+        totalCount.textContent = todos.length;
+        completedCount.textContent = todos.filter(t => t.completed).length;
+        activeCount.textContent = todos.filter(t => !t.completed).length;
+    }
+
+    updateAllStatistics() {
+        this.updateStatistics('diana');
+        this.updateStatistics('aman');
+    }
+
+    saveTodos(user) {
+        localStorage.setItem(`todos_${user}`, JSON.stringify(this.users[user].todos));
+    }
+
+    loadTodos(user) {
+        const saved = localStorage.getItem(`todos_${user}`);
+        return saved ? JSON.parse(saved) : [];
+    }
+
+    clearCompleted(user) {
+        const completedCount = this.users[user].todos.filter(t => t.completed).length;
+        if (completedCount === 0) {
+            this.showError(`Tidak ada tugas ${user} yang selesai`);
+            return;
+        }
+
+        if (confirm(`Hapus ${completedCount} tugas ${user} yang selesai?`)) {
+            this.users[user].todos = this.users[user].todos.filter(t => !t.completed);
+            this.saveTodos(user);
+            this.render(user);
+            this.updateStatistics(user);
+            this.showSuccess(`Tugas ${user} yang selesai berhasil dihapus`);
+        }
     }
 
     clearCompleted() {
@@ -338,7 +422,7 @@ class TodoApp {
         clearBtn.style.display = hasCompleted ? 'inline-block' : 'none';
     }
 
-    createTodoHTML(todo) {
+    createTodoHTML(todo, user) {
         const createdDate = new Date(todo.createdAt);
         const formattedCreatedDate = createdDate.toLocaleDateString('id-ID', { 
             day: 'numeric', 
@@ -363,10 +447,18 @@ class TodoApp {
             let dateIcon = 'fa-calendar';
             
             if (dueDate.getTime() < today.getTime() && !todo.completed) {
-                dateClass = 'text-red-600 font-semibold';
+                if (user === 'diana') {
+                    dateClass = 'text-red-600 font-semibold';
+                } else {
+                    dateClass = 'text-red-600 font-semibold';
+                }
                 dateIcon = 'fa-exclamation-triangle';
             } else if (dueDate.getTime() === today.getTime()) {
-                dateClass = 'text-orange-600 font-semibold';
+                if (user === 'diana') {
+                    dateClass = 'text-orange-600 font-semibold';
+                } else {
+                    dateClass = 'text-orange-600 font-semibold';
+                }
                 dateIcon = 'fa-calendar-day';
             }
             
@@ -380,8 +472,15 @@ class TodoApp {
             `;
         }
         
+        // User-specific styling
+        let bgClass = user === 'diana' ? 'bg-pink-50' : 'bg-blue-50';
+        let borderClass = user === 'diana' ? 'border-pink-200' : 'border-blue-200';
+        let hoverClass = user === 'diana' ? 'hover:bg-pink-100' : 'hover:bg-blue-100';
+        let editBtnClass = user === 'diana' ? 'bg-purple-100 text-purple-600 hover:bg-purple-200' : 'bg-blue-100 text-blue-600 hover:bg-blue-200';
+        let deleteBtnClass = user === 'diana' ? 'bg-red-100 text-red-600 hover:bg-red-200' : 'bg-red-100 text-red-600 hover:bg-red-200';
+        
         return `
-            <div class="todo-item animate-slide-down bg-gray-50 rounded-lg p-3 sm:p-4 flex items-start sm:items-center gap-2 sm:gap-3 hover:bg-gray-100 transition-colors duration-200 group ${todo.completed ? 'opacity-75' : ''}">
+            <div class="todo-item animate-slide-down ${bgClass} rounded-lg p-3 sm:p-4 flex items-start sm:items-center gap-2 sm:gap-3 ${hoverClass} transition-colors duration-200 group border ${borderClass} ${todo.completed ? 'opacity-75' : ''}">
                 <input 
                     type="checkbox" 
                     class="todo-checkbox w-4 h-4 sm:w-5 sm:h-5 text-indigo-600 rounded focus:ring-indigo-500 cursor-pointer mt-0.5 sm:mt-0" 
@@ -402,13 +501,13 @@ class TodoApp {
                 </div>
                 <div class="flex gap-1 sm:gap-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex-shrink-0">
                     <button 
-                        class="edit-btn px-2 py-1 sm:px-3 sm:py-1 bg-blue-100 text-blue-600 rounded hover:bg-blue-200 transition-colors duration-200 text-xs sm:text-sm"
+                        class="edit-btn px-2 py-1 sm:px-3 sm:py-1 ${editBtnClass} rounded transition-colors duration-200 text-xs sm:text-sm"
                         data-id="${todo.id}"
                     >
                         <i class="fas fa-edit"></i>
                     </button>
                     <button 
-                        class="delete-btn px-2 py-1 sm:px-3 sm:py-1 bg-red-100 text-red-600 rounded hover:bg-red-200 transition-colors duration-200 text-xs sm:text-sm"
+                        class="delete-btn px-2 py-1 sm:px-3 sm:py-1 ${deleteBtnClass} rounded transition-colors duration-200 text-xs sm:text-sm"
                         data-id="${todo.id}"
                     >
                         <i class="fas fa-trash"></i>
