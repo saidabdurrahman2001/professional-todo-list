@@ -1,6 +1,6 @@
 class TodoApp {
     constructor() {
-        this.apiEndpoint = 'https://script.google.com/macros/s/AKfycbwlA0jwtZqTrV04BlNsKL1bQAImpoBcUfGRpVsCa5N9yFi1wi5bdUS_SdCTcEGGV4Ch/exec';
+        this.apiEndpoint = 'https://script.google.com/macros/s/AKfycbykCpOrFlp3U7qNFpyt0LbcNZqhKtWGT-7Q-W3VprN08lQgixaKMPR19rBQgG661V8/exec';
         this.users = {
             diana: { todos: [] },
             aman: { todos: [] }
@@ -51,23 +51,27 @@ class TodoApp {
 
     async saveToAPI(todo, method = 'POST') {
     try {
-        // Kita paksa semua request lewat POST agar tidak kena 405
-        // Method asli (PUT/DELETE) kita selipkan di URL parameter
-        const url = `${this.apiEndpoint}?method=${method}&id=${todo.id || ''}`;
-        
-        const options = {
-            method: 'POST', // WAJIB POST untuk Apps Script
-            headers: {
-                'Content-Type': 'text/plain;charset=utf-8', // Gunakan text/plain untuk menghindari CORS preflight
-            },
-            body: JSON.stringify(todo)
+        // Masukkan method ke dalam payload body
+        const payload = {
+            ...todo,
+            method: method
         };
 
-        const response = await fetch(url, options);
-        const result = await response.json();
+        const options = {
+            method: 'POST', 
+            mode: 'no-cors', // Menghindari blokir CORS browser
+            headers: {
+                'Content-Type': 'text/plain' // Menghindari pre-flight request
+            },
+            body: JSON.stringify(payload)
+        };
+
+        await fetch(this.apiEndpoint, options);
         
-        console.log(`API ${method} Response:`, result);
-        return result;
+        // Pada mode no-cors, kita tidak bisa membaca response (opaque).
+        // Kita asumsikan sukses jika tidak masuk ke catch.
+        return { success: true }; 
+        
     } catch (error) {
         console.error('❌ API Error:', error);
         return { success: false };
@@ -288,6 +292,11 @@ createTodoHTML(todo, user) {
     const isCompleted = todo.completed;
     const textStyle = isCompleted ? 'line-through text-gray-400' : 'text-gray-800 font-medium';
     
+    // Gunakan satu variabel saja untuk format YYYY-MM-DD
+    const cleanDate = (todo.due_date && typeof todo.due_date === 'string') 
+                      ? todo.due_date.split('T')[0] 
+                      : '';
+    
     let deadlineLabel = '';
     let daysLeftLabel = '';
     let statusBadge = '';
@@ -306,6 +315,7 @@ createTodoHTML(todo, user) {
         const diffTime = dueMid.getTime() - today.getTime();
         const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
 
+        // Logika Label Sisa Hari
         if (diffDays > 0) {
             daysLeftLabel = `<span class="bg-blue-50 text-blue-600 px-2 py-0.5 rounded-md text-[10px] font-bold border border-blue-100">${diffDays} Hari Lagi</span>`;
         } else if (diffDays === 0) {
@@ -314,6 +324,7 @@ createTodoHTML(todo, user) {
             daysLeftLabel = `<span class="bg-red-50 text-red-500 px-2 py-0.5 rounded-md text-[10px] font-bold border border-red-100">Terlewat ${Math.abs(diffDays)} Hari</span>`;
         }
 
+        // Logika Badge Status
         if (isCompleted) {
             statusBadge = 'Selesai';
             badgeColor = 'bg-green-500 text-white';
@@ -348,14 +359,24 @@ createTodoHTML(todo, user) {
                         <p id="todo-text-${todo.id}" 
                            contenteditable="${!isCompleted}"
                            class="text-base ${textStyle} outline-none break-words leading-tight"
-                           onblur="app.saveInlineEdit('${todo.id}', '${user}', this.innerText)">
-                            ${this.escapeHtml(todo.text)}
+                           onblur="app.saveInlineEdit('${todo.id}', '${user}', this.innerText)"
+                           onkeydown="if(event.key==='Enter'){ event.preventDefault(); this.blur(); }">
+                             ${this.escapeHtml(todo.text)}
                         </p>
                         
                         <div class="flex flex-wrap items-center gap-2 mt-3">
-                            <span class="text-gray-500 text-[11px] font-medium flex items-center bg-gray-50 px-2 py-0.5 rounded border border-gray-100">
-                                <i class="far fa-calendar-alt mr-1.5 text-gray-400"></i> ${deadlineLabel}
-                            </span>
+                            <div class="relative group">
+                                <span onclick="document.getElementById('edit-date-${todo.id}').showPicker()" 
+                                      class="cursor-pointer text-gray-500 text-[11px] font-medium flex items-center bg-gray-50 px-2 py-0.5 rounded border border-gray-100 hover:bg-indigo-50 hover:border-indigo-200 transition-all">
+                                    <i class="far fa-calendar-alt mr-1.5 text-gray-400"></i> ${deadlineLabel}
+                                </span>
+                                
+                                <input type="date" 
+                                       id="edit-date-${todo.id}" 
+                                       class="absolute opacity-0 pointer-events-none w-0 h-0"
+                                       value="${cleanDate}"
+                                       onchange="app.saveDateEdit('${todo.id}', '${user}', this.value)">
+                            </div>
 
                             <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider ${badgeColor}">
                                 ${statusBadge}
@@ -368,11 +389,11 @@ createTodoHTML(todo, user) {
                 
                 <div class="flex items-center gap-1">
                     <button onclick="app.editTodoInline('${todo.id}', '${user}')" 
-                            class="p-2 text-gray-300 hover:text-blue-500 hover:bg-blue-50 rounded-xl transition-all" title="Edit">
+                            class="p-2 text-gray-300 hover:text-blue-500 hover:bg-blue-50 rounded-xl transition-all" title="Edit Teks">
                         <i class="fas fa-edit text-sm"></i>
                     </button>
                     <button onclick="app.deleteTodo('${todo.id}', '${user}')" 
-                            class="p-2 text-gray-300 hover:text-red-500 hover:bg-red-50 rounded-xl transition-all">
+                            class="p-2 text-gray-300 hover:text-red-500 hover:bg-red-50 rounded-xl transition-all" title="Hapus">
                         <i class="fas fa-trash-alt text-sm"></i>
                     </button>
                 </div>
@@ -380,7 +401,6 @@ createTodoHTML(todo, user) {
         </div>
     `;
 }
-
 
 async toggleTodo(todoId, user) {
     // Pastikan ID dicari sebagai string untuk kecocokan database
@@ -517,6 +537,7 @@ async toggleTodo(todoId, user) {
     async saveInlineEdit(id, user, newText) {
     // 1. Cari data di memori lokal
     const todo = this.users[user].todos.find(t => String(t.id) === String(id));
+
     
     // Jika teks tidak berubah, tidak perlu kirim ke API
     if (!todo || todo.text === newText) return;
@@ -545,6 +566,36 @@ async toggleTodo(todoId, user) {
     }
 }
 
+async saveDateEdit(id, user, newDate) {
+    const todo = this.users[user].todos.find(t => String(t.id) === String(id));
+    const cleanDate = newDate.includes('T') ? newDate.split('T')[0] : newDate;
+
+    if (!todo || todo.due_date === cleanDate) return;
+
+    // --- STRATEGI OPTIMISTIC UPDATE ---
+    const oldDate = todo.due_date; // Simpan backup jika gagal
+    todo.due_date = cleanDate;     // Ubah data di memori lokal
+    todo.updated_at = new Date().toISOString();
+
+    // Langsung render UI (Pengguna melihat perubahan secara instan)
+    this.render(user); 
+
+    try {
+        // Kirim ke server di "background"
+        const result = await this.saveToAPI(todo, 'PUT');
+        
+        if (!result.success) {
+            throw new Error("Gagal");
+        }
+        console.log("✅ Server tersinkronisasi");
+    } catch (error) {
+        // Jika gagal, kembalikan ke tanggal lama dan render ulang
+        console.error('Update server gagal, mengembalikan data:', error);
+        todo.due_date = oldDate;
+        this.render(user);
+        alert('Koneksi bermasalah, tanggal gagal disimpan ke cloud.');
+    }
+}
     // Method untuk edit inline dengan button
     editTodoInline(id, user) {
     const textElement = document.getElementById(`todo-text-${id}`);
