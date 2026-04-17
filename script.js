@@ -1,6 +1,6 @@
 class TodoApp {
     constructor() {
-        this.apiEndpoint = 'https://script.google.com/macros/s/AKfycbzX2iIo9Srl51-f8XXWPsEvBYt4Lp50nP5J3Ii4RABvqLp9YzH-n6ELow0yLqJixjg/exec';
+        this.apiEndpoint = 'https://script.google.com/macros/s/AKfycbwlA0jwtZqTrV04BlNsKL1bQAImpoBcUfGRpVsCa5N9yFi1wi5bdUS_SdCTcEGGV4Ch/exec';
         this.users = {
             diana: { todos: [] },
             aman: { todos: [] }
